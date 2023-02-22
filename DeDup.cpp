@@ -1,20 +1,50 @@
 // DeDup.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// (c) 2023 Jimmy James
 
 #include <iostream>
+#include <stdio.h>
+#include <sstream>
+#include <string>
+
+std::string exec(const char* cmd)
+{
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = _popen(cmd, "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try
+    {
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) { result += buffer; }
+    }
+    catch (...)
+    {
+        _pclose(pipe);
+        throw;
+    }
+    _pclose(pipe);
+    return result;
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    const char delimiter = '\n';
+    std::string file = "E:\\library\\docs\\numerical_recipes.pdf";
+    // MD5 SHA256
+    std::string cmd = "certutil -hashfile " + file + " MD5";
+    std::string cmdrslt = exec(cmd.c_str());
+    std::istringstream ss(cmdrslt);
+    std::string token;
+
+    // Read and discard the first token
+    std::getline(ss, token, delimiter);
+
+    // Read the second token
+    if (std::getline(ss, token, delimiter))
+    {
+        // Do something with the second token
+        // std::cout << "The second token is: " << token << std::endl;
+        printf("MD5 hash of %s: %s\n", file.c_str(), token.c_str());
+    }
+    
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
