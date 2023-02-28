@@ -28,13 +28,13 @@ std::string exec(const char* cmd)
     return result;
 }
 
-void list_files_recursive(const std::filesystem::path& path) {
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        if (entry.is_regular_file()) {
-            std::cout << entry.path() << std::endl;
-        }
-        else if (entry.is_directory()) {
-            list_files_recursive(entry.path());
+void list_files_recursive(const std::filesystem::path& path)
+{
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(path))
+    {
+        if (entry.is_regular_file() && entry.path().extension()==".pdf")
+        {
+            std::wcout << entry.path() << std::endl;
         }
     }
 }
@@ -49,10 +49,10 @@ int main()
     const std::string method = "MD5";
 
     // The location to de-dup
-    const std::string path = "E:\\library";
+    const std::wstring path = L"E:\\library\\Mainframe\\Hercules_Explode";
 
     list_files_recursive(path);
-
+    return 0;
 
     // The file to compute a hash for
     std::string file = "E:\\library\\docs\\numerical_recipes.pdf";
