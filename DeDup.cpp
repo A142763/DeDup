@@ -2,11 +2,14 @@
 // (c) 2023 Jimmy James
 
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include <stdio.h>
 #include <sstream>
 #include <string>
-
+#include <vector>
+#include <io.h>
+#include <fcntl.h>
 
 // Function to execute an external command and return the result string
 std::string exec(const char* cmd)
@@ -28,13 +31,24 @@ std::string exec(const char* cmd)
     return result;
 }
 
-void list_files_recursive(const std::filesystem::path& path)
+
+using namespace std::string_literals;
+namespace fs = std::filesystem;
+
+// , const std::string& search_string
+void search_files(const fs::path& path, const std::vector<std::string>& extensions)
 {
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(path))
+    for (const auto& entry : fs::recursive_directory_iterator(path))
     {
-        if (entry.is_regular_file() && entry.path().extension()==".pdf")
+        if (entry.is_regular_file())
         {
-            std::wcout << entry.path() << std::endl;
+            const auto extension = entry.path().extension().string();
+            if (std::find(extensions.begin(), extensions.end(), extension) != extensions.end())
+            {
+                // std::ifstream file(entry.path());
+                // std::string line;
+                std::wcout << entry.path() << std::endl;
+            }
         }
     }
 }
@@ -45,13 +59,21 @@ int main()
     // This is the delimiter for the parts of the command result cmdrslt
     // and set the method used for hashing
     
+    const fs::path path = u8"E:\\library\\Mainframe";
+    const std::vector<std::string> extensions = { ".pdf"s };
+    // const std::string search_string = "pdf";
+    _setmode(_fileno(stdout), _O_U16TEXT);
+    search_files(path, extensions);
+    return 0;
+
+
     const char delimiter = '\n';
     const std::string method = "MD5";
 
     // The location to de-dup
-    const std::wstring path = L"E:\\library\\Mainframe\\Hercules_Explode";
+    // const std::wstring path = L"E:\\library\\Mainframe\\Hercules_Explode";
 
-    list_files_recursive(path);
+    // list_files_recursive(path,L".pdf");
     return 0;
 
     // The file to compute a hash for
